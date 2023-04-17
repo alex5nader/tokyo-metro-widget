@@ -4,6 +4,7 @@
   },
   "compilerOptions": {
     "types": [
+      "https://esm.sh/@types/scriptable-ios"
     ],
     "lib": []
   }

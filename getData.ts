@@ -3,6 +3,10 @@ export const getData = async () => {
 
   const json = await request.loadJSON();
 
+  const files = FileManager.local();
+
+  files;
+
   console.log(json);
 };
 

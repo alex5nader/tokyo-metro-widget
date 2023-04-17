@@ -52,7 +52,7 @@ class ScriptableRequest {
     } else if (typeof this.body === "string") {
       body = this.body;
     } else {
-      body = this.body.blob;
+      body = this.body.bytes;
     }
     const result = await fetch(new URL(this.url), {
       method: this.method,
@@ -84,7 +84,7 @@ class ScriptableRequest {
 
   async load(): Promise<Data> {
     const result = await this.#load();
-    return new Data(await result.blob());
+    return Data.fromBytes(new Uint8Array(await result.arrayBuffer()));
   }
 
   async loadString(): Promise<string> {
