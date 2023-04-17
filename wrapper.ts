@@ -1,3 +1,21 @@
-import "./mock/index.ts";
+import { CompletionError } from "./mock/index.ts";
 
-await import(Deno.args[0]);
+const runScript = async (path: string) => {
+  try {
+    await import(path);
+  } catch (error) {
+    if (!(error instanceof CompletionError)) {
+      throw error;
+    }
+  }
+};
+
+await runScript(Deno.args[0]);
+
+console.log();
+console.log(scriptOutput);
+
+if (widget) {
+  console.log("Widget:");
+  console.log(widget);
+}

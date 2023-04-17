@@ -11,3 +11,6 @@ alert.addTextField("Sample input");
 const result = await alert.present();
 
 console.log(`You entered ${result} and ${alert.textFieldValue(0)}`);
+
+Script.setShortcutOutput("the output");
+Script.complete();
