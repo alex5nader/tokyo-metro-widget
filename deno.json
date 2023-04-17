@@ -1,0 +1,10 @@
+{
+  "tasks": {
+    "run": "deno run -A wrapper.ts"
+  },
+  "compilerOptions": {
+    "types": [
+    ],
+    "lib": []
+  }
+}
