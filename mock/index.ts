@@ -1,3 +1,4 @@
+import "./Alert.ts";
 import "./Data.ts";
 import "./FileManager.ts";
 import "./Image.ts";
