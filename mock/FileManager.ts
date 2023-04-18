@@ -31,10 +31,12 @@ declare global {
   constructor(label: string) {
     this.#dir = Deno.makeTempDirSync();
     console.log(`Using ${this.#dir} for ${label}`);
+
+    this.createDirectory(this.documentsDirectory(), false);
   }
 
   #read(filePath: string): Uint8Array {
-    return Deno.readFileSync(this.getPath(filePath));
+    return Deno.readFileSync(filePath);
   }
 
   read(filePath: string): Data {
@@ -50,7 +52,7 @@ declare global {
   }
 
   #write(filePath: string, data: Uint8Array) {
-    Deno.writeFileSync(this.getPath(filePath), data);
+    Deno.writeFileSync(filePath, data);
   }
 
   write(filePath: string, content: Data) {
@@ -66,30 +68,24 @@ declare global {
   }
 
   remove(filePath: string) {
-    Deno.removeSync(this.getPath(filePath));
+    Deno.removeSync(filePath);
   }
 
   move(sourceFilePath: string, destinationFilePath: string) {
-    Deno.renameSync(
-      this.getPath(sourceFilePath),
-      this.getPath(destinationFilePath),
-    );
+    Deno.renameSync(sourceFilePath, destinationFilePath);
   }
 
   copy(sourceFilePath: string, destinationFilePath: string) {
-    Deno.copyFileSync(
-      this.getPath(sourceFilePath),
-      this.getPath(destinationFilePath),
-    );
+    Deno.copyFileSync(sourceFilePath, destinationFilePath);
   }
 
   fileExists(filePath: string): boolean {
-    return existsSync(this.getPath(filePath));
+    return existsSync(filePath);
   }
 
   isDirectory(filePath: string): boolean {
     try {
-      const stat = Deno.statSync(this.getPath(filePath));
+      const stat = Deno.statSync(filePath);
       return stat.isDirectory;
     } catch (error) {
       if (error instanceof Deno.errors.NotFound) {
@@ -101,7 +97,15 @@ declare global {
   }
 
   createDirectory(path: string, intermediateDirectories: boolean) {
-    Deno.mkdirSync(this.getPath(path), { recursive: intermediateDirectories });
+    Deno.mkdirSync(path, { recursive: intermediateDirectories });
+  }
+
+  documentsDirectory(): string {
+    return this.getPath("Documents");
+  }
+
+  joinPath(lhsPath: string, rhsPath: string): string {
+    return path.join(lhsPath, rhsPath);
   }
 
   downloadFileFromiCloud(_filePath: string): Promise<void> {

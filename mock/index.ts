@@ -7,3 +7,6 @@ export * from "./Script.ts";
 export * from "./importModule.ts";
 export * from "./module.ts";
 export * from "./util.ts";
+
+// deno-lint-ignore no-explicit-any
+(globalThis as any).mocksEnabled = true;

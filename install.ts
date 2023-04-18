@@ -1,38 +1,77 @@
-await main();
+// deno-lint-ignore no-explicit-any
+const mocksEnabled = (globalThis as any).mocksEnabled;
 
 async function main() {
   const targetFile = "setup.ts";
   const folder = "tokyo-metro-widget";
 
-  const files = getFiles();
-  const scriptPath = `${folder}/${targetFile}`;
+  const installer = new Installer(
+    folder,
+    targetFile,
+  );
 
-  if (!files.isDirectory(folder)) {
-    files.createDirectory(folder);
-  }
-  if (!files.fileExists(scriptPath)) {
-    // const req = new Request(
-    //   `https://raw.githubusercontent.com/alex5nader/tokyo-metro-widget/main/${targetFile}`,
-    // );
-    //
-    // const code = await req.loadString();
-    const code = Deno.readTextFileSync(`./${targetFile}`);
-    files.writeString(scriptPath, code);
-  }
-
-  await files.downloadFileFromiCloud(scriptPath);
-
-  const script = await importModule(scriptPath);
-
-  await script.setup();
+  await installer.install();
 }
 
-function getFiles() {
-  const local = FileManager.local();
+class Installer {
+  readonly #files: FileManager;
+  readonly #folder: string;
+  readonly #targetFile: string;
 
-  if (local.isFileStoredIniCloud(module.filename)) {
-    return FileManager.iCloud();
-  } else {
-    return local;
+  constructor(folderName: string, targetFile: string) {
+    const localFiles = FileManager.local();
+
+    if (localFiles.isFileStoredIniCloud(module.filename)) {
+      this.#files = FileManager.iCloud();
+    } else {
+      this.#files = localFiles;
+    }
+
+    this.#folder = this.#files.joinPath(
+      this.#files.documentsDirectory(),
+      folderName,
+    );
+    this.#targetFile = targetFile;
+  }
+
+  #scriptPath(): string {
+    return this.#files.joinPath(this.#folder, this.#targetFile);
+  }
+
+  createScriptDir() {
+    if (!this.#files.isDirectory(this.#folder)) {
+      this.#files.createDirectory(this.#folder);
+    }
+  }
+
+  // deno-lint-ignore no-explicit-any
+  async downloadScript(): Promise<any> {
+    const scriptPath = this.#scriptPath();
+    if (!this.#files.fileExists(scriptPath)) {
+      let code;
+      if (mocksEnabled) {
+        code = Deno.readTextFileSync("./setup.ts");
+      } else {
+        const req = new Request(
+          `https://raw.githubusercontent.com/alex5nader/tokyo-metro-widget/main/${this.#targetFile}`,
+        );
+        code = await req.loadString();
+      }
+      this.#files.writeString(scriptPath, code);
+    }
+
+    await this.#files.downloadFileFromiCloud(scriptPath);
+
+    return importModule(scriptPath);
+  }
+
+  // deno-lint-ignore no-explicit-any
+  async install(): Promise<any> {
+    this.createScriptDir();
+    const script = await this.downloadScript();
+
+    return script.setup();
   }
 }
+
+await main();
