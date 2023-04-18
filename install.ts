@@ -1,3 +1,5 @@
+const tryLocalServer = "";
+
 // deno-lint-ignore no-explicit-any
 const mocksEnabled = (globalThis as any).mocksEnabled;
 
@@ -47,10 +49,15 @@ class Installer {
   // deno-lint-ignore no-explicit-any
   async downloadScript(): Promise<any> {
     const scriptPath = this.#scriptPath();
-    if (!this.#files.fileExists(scriptPath)) {
+    if (
+      !this.#files.fileExists(scriptPath) || mocksEnabled || tryLocalServer
+    ) {
       let code;
       if (mocksEnabled) {
         code = Deno.readTextFileSync("./setup.ts");
+      } else if (tryLocalServer) {
+        const req = new Request(`https://${tryLocalServer}`);
+        code = await req.loadString();
       } else {
         const req = new Request(
           `https://raw.githubusercontent.com/alex5nader/tokyo-metro-widget/main/${this.#targetFile}`,

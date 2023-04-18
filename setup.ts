@@ -16,3 +16,7 @@ module.exports.setup = async function () {
   Script.setShortcutOutput("the output");
   Script.complete();
 };
+
+module.exports.createWidget = async function () {
+  // const widget = new ListWidget
+};
