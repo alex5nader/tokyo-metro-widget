@@ -13,33 +13,16 @@
 // mock or the regular implementation.
 
 import * as path from "https://deno.land/std@0.183.0/path/mod.ts";
-
-function getStackTrace(caller: any) {
-  const _prepareStackTrace = (Error as any).prepareStackTrace;
-  (Error as any).prepareStackTrace = function (_: any, trace: any) {
-    return trace.map((callSite: any) => ({
-      fileName: callSite.getFileName(),
-    }));
-  };
-
-  const obj: any = {};
-  Error.captureStackTrace(obj, caller);
-
-  const stack = obj.stack;
-  (Error as any).prepareStackTrace = _prepareStackTrace;
-
-  return stack;
-}
-
-const PROJECT_PATH = path.join(
-  path.dirname(path.fromFileUrl(import.meta.url)),
-  "..",
-);
+import { getCaller } from "./getCaller.ts";
+import { DEVICE_LOCAL_ROOT, ICLOUD_ROOT } from "./FileManager.ts";
 
 const shouldOverride = (callerFile: string) => {
   try {
     const callerPath = path.fromFileUrl(callerFile);
-    if (callerPath.startsWith(PROJECT_PATH)) {
+    if (
+      callerPath.startsWith(DEVICE_LOCAL_ROOT) ||
+      callerPath.startsWith(ICLOUD_ROOT)
+    ) {
       return true;
     }
   } catch {
@@ -61,9 +44,9 @@ export function overrideBuiltin(name: string, replacement: any) {
 
   Object.defineProperty(globalThis, name, {
     get: function getter() {
-      const trace = getStackTrace(getter);
+      const caller = getCaller(getter);
 
-      if (shouldOverride(trace[0].fileName)) {
+      if (shouldOverride(caller.fileName)) {
         return replacement;
       } else {
         return original;

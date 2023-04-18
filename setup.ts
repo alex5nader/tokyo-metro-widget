@@ -1,16 +1,18 @@
-const alert = new Alert();
-alert.title = "Test alert";
-alert.message = "Description";
+module.exports.setup = async function () {
+  const alert = new Alert();
+  alert.title = "Test alert";
+  alert.message = "Description";
 
-alert.addAction("Ok");
-alert.addDestructiveAction("Destroy the universe");
-alert.addCancelAction("Cancel");
+  alert.addAction("Ok");
+  alert.addDestructiveAction("Destroy the universe");
+  alert.addCancelAction("Cancel");
 
-alert.addTextField("Sample input");
+  alert.addTextField("Sample input");
 
-const result = await alert.present();
+  const result = await alert.present();
 
-console.log(`You entered ${result} and ${alert.textFieldValue(0)}`);
+  console.log(`You entered ${result} and ${alert.textFieldValue(0)}`);
 
-Script.setShortcutOutput("the output");
-Script.complete();
+  Script.setShortcutOutput("the output");
+  Script.complete();
+};
