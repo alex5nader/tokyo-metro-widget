@@ -1,1 +1,3 @@
 .direnv
+.ngrok.config
+.keychain.json

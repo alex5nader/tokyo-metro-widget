@@ -68,12 +68,14 @@ declare global {
   }
 
   present(): Promise<number> {
-    if (this.#actions.length == 0) {
-      throw new Error("Must have at least one action before presenting");
-    }
+    const actions: Action[] = this.#actions.length > 0
+      ? this.#actions
+      : [{ title: "Cancel", type: "cancel" }];
 
     console.log(this.title);
-    console.log(this.message);
+    if (this.message) {
+      console.log(this.message);
+    }
     console.log();
 
     if (this.#textFields.length > 0) {
@@ -87,16 +89,16 @@ declare global {
       console.log();
     }
 
-    for (let i = 0; i < this.#actions.length; i++) {
+    for (let i = 0; i < actions.length; i++) {
       console.log(
-        `[${i}] %c${this.#actions[i].title}`,
-        styles[this.#actions[i].type],
+        `[${i}] %c${actions[i].title}`,
+        styles[actions[i].type],
       );
     }
 
     return new Promise((resolve) => {
       while (true) {
-        const result = prompt(`Which action? [0-${this.#actions.length - 1}]`);
+        const result = prompt(`Which action? [0-${actions.length - 1}]`);
 
         if (!result) {
           continue;
@@ -105,12 +107,12 @@ declare global {
         const index = Number(result);
 
         if (
-          Number.isNaN(index) || index < 0 || index >= this.#actions.length
+          Number.isNaN(index) || index < 0 || index >= actions.length
         ) {
           continue;
         }
 
-        if (this.#actions[index].type === "cancel") {
+        if (actions[index].type === "cancel") {
           resolve(-1);
         } else {
           resolve(index);

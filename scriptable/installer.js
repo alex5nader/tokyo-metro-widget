@@ -1,4 +1,4 @@
-const tryLocalServer = "http://127.0.0.1:8080";
+const tryDevServer = "http://127.0.0.1:8080";
 
 async function main() {
   const targets = ["main.js", "manage-api-key.js", "wizard.js"];
@@ -43,12 +43,21 @@ class Installer {
   async downloadTarget(target) {
     const scriptPath = this.#targetPath(target);
     if (
-      !this.files.fileExists(scriptPath) || mocksEnabled || tryLocalServer
+      !this.files.fileExists(scriptPath) || mocksEnabled || tryDevServer
     ) {
-      const url = tryLocalServer
-        ? `${tryLocalServer}/${target}`
-        : `https://raw.githubusercontent.com/alex5nader/tokyo-metro-widget/main/scriptable/${target}`;
-      const req = new Request(url);
+      let req;
+      if (tryDevServer) {
+        req = new Request(
+          `${tryDevServer}/${target}`,
+        );
+        req.headers = {
+          ["Bypass-Tunnel-Reminder"]: "1",
+        };
+      } else {
+        req = new Request(
+          `https://raw.githubusercontent.com/alex5nader/tokyo-metro-widget/main/scriptable/${target}`,
+        );
+      }
 
       const code = await req.loadString();
       this.files.writeString(scriptPath, code);

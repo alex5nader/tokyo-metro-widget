@@ -3,5 +3,5 @@
 with pkgs;
 
 mkShell {
-  nativeBuildInputs = [ deno miniserve ];
+  nativeBuildInputs = [ deno miniserve ngrok ];
 }
