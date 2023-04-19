@@ -7,27 +7,34 @@ module.exports.Alert = class Alert {
       message = undefined;
     }
 
-    this.raw = new RawAlert();
-    this.raw.title = title;
-    this.raw.message = message;
+    // Scriptable Alerts cannot be reused so every present must create a new one
+    this.makeRaw = () => {
+      const raw = new RawAlert();
+      raw.title = title;
+      raw.message = message;
 
-    if (actions) {
-      for (const action of actions) {
-        if (typeof action === "string") {
-          this.raw.addAction(action);
-        } else if (action.type === "destructive") {
-          this.raw.addDestructiveAction(action.label);
-        } else if (action.type === "cancel") {
-          this.raw.addCancelAction(action.label ?? "Cancel");
-        } else {
-          throw new Error(`Invalid action: ${JSON.stringify(action)}`);
+      if (actions) {
+        for (const action of actions) {
+          if (typeof action === "string") {
+            raw.addAction(action);
+          } else if (action.type === "destructive") {
+            raw.addDestructiveAction(action.label);
+          } else if (action.type === "cancel") {
+            raw.addCancelAction(action.label ?? "Cancel");
+          } else {
+            throw new Error(`Invalid action: ${JSON.stringify(action)}`);
+          }
         }
       }
-    }
+
+      return raw;
+    };
   }
 
-  present() {
-    return this.raw.present();
+  async present() {
+    const raw = this.makeRaw();
+
+    return await raw.present();
   }
 };
 

@@ -9,7 +9,7 @@ async function main() {
   installer.createTargetDir();
   await installer.downloadTargets();
 
-  const mainWizard = await importModule("./tokyo-metro-widget/main.js");
+  const mainWizard = importModule("./tokyo-metro-widget/main.js");
   await mainWizard.present();
 }
 

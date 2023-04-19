@@ -1,8 +1,7 @@
 {
   "tasks": {
     "ngrok": "ngrok --config .ngrok.config http 8080",
-    "serve": "miniserve scriptable",
-    "run": "deno run -A wrapper.ts"
+    "serve": "miniserve scriptable"
   },
   "compilerOptions": {
     "types": [

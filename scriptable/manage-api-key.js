@@ -1,4 +1,4 @@
-const { Alert, TextInput, Wizard } = await importModule("./wizard.js");
+const { Alert, TextInput, Wizard } = importModule("./wizard.js");
 
 const KEYCHAIN_KEY = `tokyo-metro-widget/api-key`;
 
