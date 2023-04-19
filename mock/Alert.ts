@@ -110,7 +110,12 @@ declare global {
           continue;
         }
 
-        resolve(index);
+        if (this.#actions[index].type === "cancel") {
+          resolve(-1);
+        } else {
+          resolve(index);
+        }
+
         break;
       }
     });

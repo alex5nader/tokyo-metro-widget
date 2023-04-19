@@ -1,7 +1,7 @@
-{ pkgs ? import <nixpkgs> {} }:
+{ pkgs ? import <nixpkgs> { } }:
 
 with pkgs;
 
 mkShell {
-  nativeBuildInputs = [ deno ];
+  nativeBuildInputs = [ deno miniserve ];
 }

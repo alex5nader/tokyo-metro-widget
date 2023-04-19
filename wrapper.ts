@@ -8,7 +8,10 @@ const mainRealPath = path.resolve(Deno.args[0]);
 const mainModule = path.relative(PROJECT_PATH, mainRealPath);
 
 const files = FileManager.local();
-const mainDevicePath = files.joinPath(files.documentsDirectory(), mainModule);
+const mainDevicePath = files.joinPath(
+  files.documentsDirectory(),
+  path.basename(mainModule),
+);
 
 files.writeString(mainDevicePath, await Deno.readTextFile(mainRealPath));
 

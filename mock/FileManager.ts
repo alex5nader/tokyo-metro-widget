@@ -114,7 +114,7 @@ declare global {
   }
 
   isFileStoredIniCloud(filePath: string): boolean {
-    return FileManager.iCloud().fileExists(filePath);
+    return filePath.startsWith(ICLOUD_ROOT) && this.fileExists(filePath);
   }
 };
 

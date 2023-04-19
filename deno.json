@@ -1,5 +1,6 @@
 {
   "tasks": {
+    "serve": "miniserve scriptable",
     "run": "deno run -A wrapper.ts"
   },
   "compilerOptions": {
