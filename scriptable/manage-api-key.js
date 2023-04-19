@@ -1,4 +1,4 @@
-const { Alert, TextInput, Wizard } = importModule("./wizard.js");
+const { Message, TextInput, Wizard } = importModule("./wizard.js");
 
 const KEYCHAIN_KEY = `tokyo-metro-widget/api-key`;
 
@@ -10,7 +10,7 @@ const view = () => {
     message = "No key saved.";
   }
 
-  return new Alert("API Key", message, ["Ok"]);
+  return new Message("API Key", message);
 };
 
 const update = async () => {
@@ -24,13 +24,16 @@ const update = async () => {
 };
 
 const remove = () => {
-  Keychain.remove(KEYCHAIN_KEY);
-
-  return new Alert("API Key", "Successfully removed API key.", ["Ok"]);
+  if (Keychain.contains(KEYCHAIN_KEY)) {
+    Keychain.remove(KEYCHAIN_KEY);
+    return new Message("API Key", "Successfully removed API key.");
+  } else {
+    return new Message("API Key", "API key has not been saved.");
+  }
 };
 
 module.exports = new Wizard("API Key settings", {
   "View API Key": view,
   "Update API Key": update,
-  "Remove API key": remove,
+  "Remove API key": [remove, "destructive"],
 });

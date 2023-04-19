@@ -1,11 +1,12 @@
 const RawAlert = globalThis.Alert;
 
 module.exports.Alert = class Alert {
-  constructor(title, message, actions) {
-    if (Array.isArray(message) && actions === undefined) {
-      actions = message;
+  constructor(title, message, inputs) {
+    if (typeof message === "object" && inputs === undefined) {
+      inputs = message;
       message = undefined;
     }
+    const { actions, textFields } = inputs;
 
     // Scriptable Alerts cannot be reused so every present must create a new one
     this.makeRaw = () => {
@@ -27,6 +28,12 @@ module.exports.Alert = class Alert {
         }
       }
 
+      if (textFields) {
+        for (const { placeholder, text } of textFields) {
+          raw.addTextField(placeholder, text);
+        }
+      }
+
       return raw;
     };
   }
@@ -34,25 +41,46 @@ module.exports.Alert = class Alert {
   async present() {
     const raw = this.makeRaw();
 
-    return await raw.present();
+    return {
+      choice: await raw.present(),
+      textFieldValue: (index) => raw.textFieldValue(index),
+    };
+  }
+};
+
+module.exports.Message = class Message extends module.exports.Alert {
+  constructor(title, message, action) {
+    super(title, message, { actions: [action ?? "Ok"] });
   }
 };
 
 module.exports.Wizard = class Wizard extends module.exports.Alert {
+  static actions(pages) {
+    const actions = [];
+
+    for (const [label, page] of Object.entries(pages)) {
+      actions.push(Array.isArray(page) ? { label, type: page[1] } : label);
+    }
+
+    actions.push({ type: "cancel" });
+
+    return actions;
+  }
+
   constructor(title, message, pages) {
     if (typeof message === "object" && pages === undefined) {
       pages = message;
       message = undefined;
     }
 
-    super(title, message, [...Object.keys(pages), { type: "cancel" }]);
+    super(title, message, { actions: Wizard.actions(pages) });
 
     this.pages = Object.values(pages);
   }
 
   async present() {
     while (true) {
-      const choice = await super.present();
+      const { choice } = await super.present();
 
       if (choice === -1) {
         return;
@@ -72,18 +100,19 @@ module.exports.Wizard = class Wizard extends module.exports.Alert {
 
 module.exports.TextInput = class TextInput extends module.exports.Alert {
   constructor(title, message, placeholder, text) {
-    super(title, message, ["Ok", { type: "cancel" }]);
-
-    this.raw.addTextField(placeholder, text);
+    super(title, message, {
+      actions: ["Ok", { type: "cancel" }],
+      textFields: [{ placeholder, text }],
+    });
   }
 
   async present() {
-    const choice = await super.present();
+    const { choice, textFieldValue } = await super.present();
 
     if (choice === -1) {
       return null;
     }
 
-    return this.raw.textFieldValue(0);
+    return textFieldValue(0);
   }
 };

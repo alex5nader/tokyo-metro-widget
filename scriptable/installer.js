@@ -1,55 +1,67 @@
 const tryDevServer = "";
 
 async function main() {
-  const targets = ["main.js", "manage-api-key.js", "wizard.js"];
+  const targets = [
+    "main.js",
+    "manage-api-key.js",
+    "odpt.js",
+    "widget.js",
+    "wizard.js",
+    "station_icon_n-14.png",
+  ];
   const folder = "tokyo-metro-widget";
 
   const installer = new Installer(folder, targets);
 
-  installer.createTargetDir();
+  installer.files.createScriptDir();
   await installer.downloadTargets();
 
-  const mainWizard = importModule("./tokyo-metro-widget/main.js");
-  await mainWizard.present();
+  await importModule("./tokyo-metro-widget/main.js").main(installer.files);
 }
+
+const makeFilesExt = (folderName) => {
+  const localFiles = FileManager.local();
+
+  let files;
+  if (localFiles.isFileStoredIniCloud(module.filename)) {
+    files = FileManager.iCloud();
+  } else {
+    files = localFiles;
+  }
+
+  const folder = files.joinPath(
+    files.documentsDirectory(),
+    folderName,
+  );
+
+  files.toAbsolute = function (relative) {
+    return this.joinPath(folder, relative);
+  };
+
+  files.createScriptDir = function () {
+    if (!this.isDirectory(folder)) {
+      this.createDirectory(folder);
+    }
+  };
+
+  return files;
+};
 
 class Installer {
   constructor(folderName, targets) {
-    const localFiles = FileManager.local();
-
-    if (localFiles.isFileStoredIniCloud(module.filename)) {
-      this.files = FileManager.iCloud();
-    } else {
-      this.files = localFiles;
-    }
-
-    this.folder = this.files.joinPath(
-      this.files.documentsDirectory(),
-      folderName,
-    );
+    this.files = makeFilesExt(folderName);
     this.targets = targets;
   }
 
-  #targetPath(target) {
-    return this.files.joinPath(this.folder, target);
-  }
-
-  createTargetDir() {
-    if (!this.files.isDirectory(this.folder)) {
-      this.files.createDirectory(this.folder);
-    }
-  }
-
   async downloadTarget(target) {
-    const scriptPath = this.#targetPath(target);
+    const scriptPath = this.files.toAbsolute(target);
     if (!this.files.fileExists(scriptPath) || tryDevServer) {
       const url = tryDevServer
         ? `${tryDevServer}/${target}`
         : `https://raw.githubusercontent.com/alex5nader/tokyo-metro-widget/main/scriptable/${target}`;
       const req = new Request(url);
 
-      const code = await req.loadString();
-      this.files.writeString(scriptPath, code);
+      this.files.write(scriptPath, await req.load());
     }
 
     await this.files.downloadFileFromiCloud(scriptPath);
