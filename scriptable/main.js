@@ -1,4 +1,4 @@
-module.exports.main = async (files) => {
+module.exports.main = async (installer) => {
   if (config.runsInWidget) {
     const { makeTokyoMetroWidget } = importModule("./widget.js");
 
@@ -9,7 +9,6 @@ module.exports.main = async (files) => {
   } else {
     const { Wizard } = importModule("./wizard.js");
 
-    // TODO: option to redownload installer too so changes will sync
     const mainMenu = new Wizard("Tokyo Metro Widget", {
       ["Manage API Key"]: () => importModule("./manage-api-key.js"),
       ["Preview Widget"]: async () => {
@@ -18,6 +17,11 @@ module.exports.main = async (files) => {
         const w = makeTokyoMetroWidget(files);
 
         await w.presentSmall();
+      },
+      ["Update Code"]: async () => {
+        const { update } = importModule("./update-code.js");
+
+        await update(installer);
       },
     });
 

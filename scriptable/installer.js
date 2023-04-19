@@ -5,6 +5,7 @@ async function main() {
     "main.js",
     "manage-api-key.js",
     "odpt.js",
+    "update-code.js",
     "widget.js",
     "wizard.js",
     "station_icon_n-14.png",
@@ -14,9 +15,9 @@ async function main() {
   const installer = new Installer(folder, targets);
 
   installer.files.createScriptDir();
-  await installer.downloadTargets();
+  await installer.downloadTargets({ force: tryDevServer !== "" });
 
-  await importModule("./tokyo-metro-widget/main.js").main(installer.files);
+  await importModule("./tokyo-metro-widget/main.js").main(installer);
 }
 
 const makeFilesExt = (folderName) => {
@@ -53,27 +54,37 @@ class Installer {
     this.targets = targets;
   }
 
-  async downloadTarget(target) {
-    const scriptPath = this.files.toAbsolute(target);
-    if (!this.files.fileExists(scriptPath) || tryDevServer) {
-      const url = tryDevServer
-        ? `${tryDevServer}/${target}`
-        : `https://raw.githubusercontent.com/alex5nader/tokyo-metro-widget/main/scriptable/${target}`;
-      const req = new Request(url);
+  getTargetUrl(target) {
+    return tryDevServer
+      ? `${tryDevServer}/${target}`
+      : `https://raw.githubusercontent.com/alex5nader/tokyo-metro-widget/main/scriptable/${target}`;
+  }
 
+  async downloadTarget(target, force) {
+    const scriptPath = this.files.toAbsolute(target);
+
+    if (force || !this.files.fileExists(scriptPath)) {
+      const req = new Request(this.getTargetUrl(target));
       this.files.write(scriptPath, await req.load());
     }
 
     await this.files.downloadFileFromiCloud(scriptPath);
   }
 
-  async downloadTargets() {
+  async downloadTargets({ force }) {
     const promises = [];
     for (const target of this.targets) {
-      promises.push(this.downloadTarget(target));
+      promises.push(this.downloadTarget(target, force));
     }
 
     await Promise.all(promises);
+  }
+
+  async redownloadInstaller() {
+    const req = new Request(this.getTargetUrl("installer.js"));
+
+    this.files.write(module.filename, await req.load());
+    await this.files.downloadFileFromiCloud(module.filename);
   }
 }
 

@@ -88,11 +88,16 @@ module.exports.Wizard = class Wizard extends module.exports.Alert {
 
       let page = this.pages[choice];
       if (typeof page === "function") {
+        // Either a lazy import or just some code
         page = await page();
       }
 
       if (typeof page === "object" && "present" in page) {
+        // Resulted in some kind of alert, present it
         await page.present();
+      } else if (typeof page === "function") {
+        // Resulted in another function (usually a lazily-loaded module export)
+        await page();
       }
     }
   }
