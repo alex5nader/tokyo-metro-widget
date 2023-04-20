@@ -12,7 +12,10 @@ module.exports.main = async (installer) => {
     const { Wizard } = importModule("./wizard.js");
 
     const mainMenu = new Wizard("Tokyo Metro Widget", {
-      ["Manage Access Token"]: () => importModule("./manage-access-token.js"),
+      ["Manage Access Token"]: () =>
+        importModule("./manage-access-token.js").present(),
+      ["Choose Stations"]: () =>
+        importModule("./choose-stations.js").present(installer.files),
       ["Preview Widget"]: async () => {
         const w = makeWidget();
 

@@ -8,6 +8,8 @@ module.exports.Alert = class Alert {
     }
     const { actions, textFields } = inputs;
 
+    this.title = title;
+
     // Scriptable Alerts cannot be reused so every present must create a new one
     this.makeRaw = () => {
       const raw = new RawAlert();
@@ -93,18 +95,11 @@ module.exports.Wizard = class Wizard extends module.exports.Alert {
       return;
     }
 
-    let page = this.pages[choice];
+    const page = this.pages[choice];
     if (typeof page === "function") {
-      // Either a lazy import or just some code
-      page = await page();
-    }
-
-    if (typeof page === "object" && "present" in page) {
-      // Resulted in some kind of alert, present it
-      await page.present();
-    } else if (typeof page === "function") {
-      // Resulted in another function (usually a lazily-loaded module export)
       await page();
+    } else {
+      throw new Error(`Page ${choice} of wizard ${this.title} is invalid`);
     }
   }
 };

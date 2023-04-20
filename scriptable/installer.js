@@ -1,10 +1,11 @@
 // Variables used by Scriptable.
 // These must be at the very top of the file. Do not edit.
 // icon-color: deep-purple; icon-glyph: subway;
-const tryDevServer = "";
+const tryDevServer = importModule("./Tokyo Metro Widget Dev Server.js");
 
 async function main() {
   const targets = [
+    "choose-stations.js",
     "main.js",
     "manage-access-token.js",
     "odpt.js",
