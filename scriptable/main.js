@@ -1,10 +1,16 @@
 module.exports.main = async (installer) => {
-  const makeWidget = () => {
-    return importModule("./widget.js").makeTokyoMetroWidget(installer.files);
+  const makeWidget = async () => {
+    const status = await importModule("./get-station-status.js")
+      .getSavedStationStatus(installer.files);
+
+    return importModule("./widget.js").makeTokyoMetroWidget(
+      installer.files,
+      status,
+    );
   };
 
   if (config.runsInWidget) {
-    const w = makeWidget();
+    const w = await makeWidget();
 
     Script.setWidget(w);
     Script.complete();
@@ -14,11 +20,17 @@ module.exports.main = async (installer) => {
       "Manage Access Token": () =>
         importModule("./manage-access-token.js").present(),
       "Choose Stations": () =>
-        importModule("./choose-stations.js").showStationMenu(installer.files),
-      "Preview Widget": async () => {
-        const w = makeWidget();
+        importModule("./choose-stations.js").showStationMenu(installer),
+      "Get Station Status": async () => {
+        const status = await importModule("./get-station-status.js")
+          .getSavedStationStatus(installer.files);
 
-        await w.presentSmall();
+        console.log(status);
+      },
+      "Preview Widget": async () => {
+        const w = await makeWidget();
+
+        await w.presentMedium();
       },
       "Update Code": async () => {
         const { update } = importModule("./update-code.js");

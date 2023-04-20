@@ -41,6 +41,18 @@ const getStations = cache(async (api, line) => {
   return result;
 }, ([_, line]) => line);
 
+const getTimetables = cache(async (api, station) => {
+  const data = await api.get(api.endpoints.stationTimetables, {
+    "odpt:station": station,
+  });
+
+  return data.map((timetable) => ({
+    idStr: timetable["owl:sameAs"],
+    direction: timetable["odpt:railDirection"].split(":")[1],
+    calendar: timetable["odpt:calendar"].split(":")[1],
+  }));
+}, ([_, station]) => station);
+
 const setupApi = async (files) => {
   const accessToken = importModule("./manage-access-token.js").getAccessToken();
   if (!accessToken) {
@@ -54,40 +66,59 @@ const setupApi = async (files) => {
 };
 
 const chooseLine = async (lines) => {
-  const lineActions = lines.map((line) => line.title);
-  lineActions.push("Finish");
-  lineActions.push({ type: "cancel" });
+  const actions = lines.map((line) => line.title);
+  actions.push("Finish");
+  actions.push({ type: "cancel" });
 
-  const { choice: lineChoice } = await showAlert({
+  const { choice } = await showAlert({
     title: "Choose a line",
-    actions: lineActions,
+    actions,
     sheet: true,
   });
 
-  if (lineChoice === -1) {
+  if (choice === -1) {
     return "cancel";
-  } else if (lineChoice === lines.length) {
+  } else if (choice === lines.length) {
     return "finish";
   }
 
-  return lines[lineChoice].idStr;
+  return lines[choice].idStr;
 };
 
 const chooseStation = async (stations) => {
-  const stationActions = stations.map((station) => station.title);
-  stationActions.push({ label: "Back", type: "cancel" });
+  const actions = stations.map((station) => station.title);
+  actions.push({ label: "Back", type: "cancel" });
 
-  const { choice: stationChoice } = await showAlert({
+  const { choice } = await showAlert({
     title: "Choose a station",
-    actions: stationActions,
+    actions,
     sheet: true,
   });
 
-  if (stationChoice === -1) {
+  if (choice === -1) {
     return "back";
   }
 
-  return stations[stationChoice].idStr;
+  return stations[choice];
+};
+
+const chooseTimetable = async (timetables) => {
+  const actions = timetables.map((timetable) =>
+    `Bound for ${timetable.direction} (${timetable.calendar})`
+  );
+  actions.push({ label: "Back", type: "cancel" });
+
+  const { choice } = await showAlert({
+    title: "Choose a timetable",
+    actions,
+    sheet: true,
+  });
+
+  if (choice === -1) {
+    return "back";
+  }
+
+  return timetables[choice].idStr;
 };
 
 const chooseStations = async () => {
@@ -103,7 +134,7 @@ const chooseStations = async () => {
 
   const lines = await getLines(api);
 
-  const chosenStations = [];
+  const chosenTimetables = [];
   while (true) {
     const lineId = await chooseLine(lines);
 
@@ -114,22 +145,34 @@ const chooseStations = async () => {
     }
 
     const stations = await getStations(api, lineId);
-    const stationId = await chooseStation(stations);
+    const station = await chooseStation(stations);
 
-    if (stationId === "back") {
+    if (station === "back") {
       continue;
     }
 
-    chosenStations.push({ lineId, stationId });
+    const timetables = await getTimetables(api, station.idStr);
+    const timetableId = await chooseTimetable(timetables);
+
+    if (timetableId === "back") {
+      continue;
+    }
+
+    chosenTimetables.push({
+      lineId,
+      stationId: station.idStr,
+      stationCode: station.code,
+      timetableId,
+    });
   }
 
-  console.log(chosenStations);
-
-  return chosenStations;
+  return chosenTimetables;
 };
 
-module.exports.showStationMenu = async (files) => {
+module.exports.showStationMenu = async (installer) => {
   const stations = await chooseStations();
 
-  importModule("./saved-stations.js").saveStations(files, stations);
+  importModule("./saved-stations.js").saveStations(installer.files, stations);
+
+  await importModule("./download-icons.js").downloadIcons(installer, stations);
 };

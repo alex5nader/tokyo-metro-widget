@@ -7,13 +7,14 @@ async function main() {
   const targets = [
     "alerts.js",
     "choose-stations.js",
+    "download-icons.js",
+    "get-station-status.js",
     "main.js",
     "manage-access-token.js",
     "odpt.js",
     "saved-stations.js",
     "update-code.js",
     "widget.js",
-    "station_icon_n-14.png",
   ];
   const folder = "tokyo-metro-widget";
 

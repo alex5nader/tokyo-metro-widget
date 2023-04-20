@@ -2,6 +2,7 @@ module.exports.OdptApi = class OdptApi {
   endpoints = {
     lines: "odpt:Railway",
     stations: "odpt:Station",
+    stationTimetables: "odpt:StationTimetable",
   };
 
   constructor(accessToken) {
@@ -19,6 +20,8 @@ module.exports.OdptApi = class OdptApi {
   }
 
   async get(endpoint, params) {
+    if (!endpoint) throw new Error(`Invalid endpoint ${endpoint}`);
+
     const fullUrl = this.apiUrl(endpoint) + OdptApi.encodeParams(params);
 
     try {
