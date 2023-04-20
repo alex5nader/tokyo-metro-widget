@@ -10,6 +10,7 @@ async function main() {
     "main.js",
     "manage-access-token.js",
     "odpt.js",
+    "saved-stations.js",
     "update-code.js",
     "widget.js",
     "station_icon_n-14.png",

@@ -2,7 +2,7 @@ const { showMenu, showMessage, showTextInput } = importModule("./alerts.js");
 
 const KEYCHAIN_KEY = `tokyo-metro-widget/api-key`;
 
-module.exports.getAccessKey = () => {
+module.exports.getAccessToken = () => {
   try {
     return Keychain.get(KEYCHAIN_KEY);
   } catch (_) {
@@ -14,7 +14,7 @@ module.exports.present = async () => {
   const view = async () => {
     await showMessage({
       title: "Access Token",
-      message: module.exports.getAccessKey() ?? "No access token saved.",
+      message: module.exports.getAccessToken() ?? "No access token saved.",
     });
   };
 

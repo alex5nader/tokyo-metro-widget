@@ -14,7 +14,7 @@ module.exports.main = async (installer) => {
       "Manage Access Token": () =>
         importModule("./manage-access-token.js").present(),
       "Choose Stations": () =>
-        importModule("./choose-stations.js").present(installer.files),
+        importModule("./choose-stations.js").showStationMenu(installer.files),
       "Preview Widget": async () => {
         const w = makeWidget();
 
