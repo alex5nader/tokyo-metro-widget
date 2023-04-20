@@ -38,13 +38,21 @@ module.exports.Alert = class Alert {
     };
   }
 
-  async present() {
+  async _present(present) {
     const raw = this.makeRaw();
 
     return {
-      choice: await raw.present(),
+      choice: await present(raw),
       textFieldValue: (index) => raw.textFieldValue(index),
     };
+  }
+
+  present() {
+    return this._present((raw) => raw.present());
+  }
+
+  presentSheet() {
+    return this._present((raw) => raw.presentSheet());
   }
 };
 
@@ -79,26 +87,24 @@ module.exports.Wizard = class Wizard extends module.exports.Alert {
   }
 
   async present() {
-    while (true) {
-      const { choice } = await super.present();
+    const { choice } = await super.presentSheet();
 
-      if (choice === -1) {
-        return;
-      }
+    if (choice === -1) {
+      return;
+    }
 
-      let page = this.pages[choice];
-      if (typeof page === "function") {
-        // Either a lazy import or just some code
-        page = await page();
-      }
+    let page = this.pages[choice];
+    if (typeof page === "function") {
+      // Either a lazy import or just some code
+      page = await page();
+    }
 
-      if (typeof page === "object" && "present" in page) {
-        // Resulted in some kind of alert, present it
-        await page.present();
-      } else if (typeof page === "function") {
-        // Resulted in another function (usually a lazily-loaded module export)
-        await page();
-      }
+    if (typeof page === "object" && "present" in page) {
+      // Resulted in some kind of alert, present it
+      await page.present();
+    } else if (typeof page === "function") {
+      // Resulted in another function (usually a lazily-loaded module export)
+      await page();
     }
   }
 };
@@ -112,7 +118,7 @@ module.exports.TextInput = class TextInput extends module.exports.Alert {
   }
 
   async present() {
-    const { choice, textFieldValue } = await super.present();
+    const { choice, textFieldValue } = await super.presentSheet();
 
     if (choice === -1) {
       return null;

@@ -1,8 +1,10 @@
 module.exports.main = async (installer) => {
-  if (config.runsInWidget) {
-    const { makeTokyoMetroWidget } = importModule("./widget.js");
+  const makeWidget = () => {
+    return importModule("./widget.js").makeTokyoMetroWidget(installer.files);
+  };
 
-    const w = makeTokyoMetroWidget(files);
+  if (config.runsInWidget) {
+    const w = makeWidget();
 
     Script.setWidget(w);
     Script.complete();
@@ -10,11 +12,9 @@ module.exports.main = async (installer) => {
     const { Wizard } = importModule("./wizard.js");
 
     const mainMenu = new Wizard("Tokyo Metro Widget", {
-      ["Manage API Key"]: () => importModule("./manage-api-key.js"),
+      ["Manage Access Token"]: () => importModule("./manage-access-token.js"),
       ["Preview Widget"]: async () => {
-        const { makeTokyoMetroWidget } = importModule("./widget.js");
-
-        const w = makeTokyoMetroWidget(files);
+        const w = makeWidget();
 
         await w.presentSmall();
       },

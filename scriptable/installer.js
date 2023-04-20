@@ -1,9 +1,12 @@
+// Variables used by Scriptable.
+// These must be at the very top of the file. Do not edit.
+// icon-color: deep-purple; icon-glyph: subway;
 const tryDevServer = "";
 
 async function main() {
   const targets = [
     "main.js",
-    "manage-api-key.js",
+    "manage-access-token.js",
     "odpt.js",
     "update-code.js",
     "widget.js",
