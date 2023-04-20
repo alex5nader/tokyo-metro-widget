@@ -3,13 +3,14 @@ const downloadStationData = async () => {
 };
 
 module.exports.present = async (files) => {
-  const { Message } = importModule("./wizard.js");
+  const { showMessage } = importModule("./alerts.js");
 
   if (!await downloadStationData()) {
-    await new Message(
-      "Choose Stations",
-      "Failed to download station data.\nDid you provide an access token?",
-    ).present();
+    await showMessage({
+      title: "Choose Stations",
+      message:
+        "Failed to download station data.\nDid you provide an access token?",
+    });
     return;
   }
 };

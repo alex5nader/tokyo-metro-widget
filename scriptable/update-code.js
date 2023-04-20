@@ -4,7 +4,10 @@ module.exports.update = async (installer) => {
     installer.redownloadInstaller(),
   ]);
 
-  const { Message } = importModule("./wizard.js");
+  const { showMessage } = importModule("./alerts.js");
 
-  await new Message("Update Code", "Successfully updated.").present();
+  await showMessage({
+    title: "Update Code",
+    message: "Successfully updated.",
+  });
 };

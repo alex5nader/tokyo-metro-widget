@@ -1,4 +1,4 @@
-const { Message, TextInput, Wizard } = importModule("./wizard.js");
+const { showMenu, showMessage, showTextInput } = importModule("./alerts.js");
 
 const KEYCHAIN_KEY = `tokyo-metro-widget/api-key`;
 
@@ -12,20 +12,17 @@ module.exports.getAccessKey = () => {
 
 module.exports.present = async () => {
   const view = async () => {
-    await new Message(
-      "Access Token",
-      module.exports.getAccessKey() ?? "No access token saved.",
-    ).present();
+    await showMessage({
+      title: "Access Token",
+      message: module.exports.getAccessKey() ?? "No access token saved.",
+    });
   };
 
   const update = async () => {
-    const input = new TextInput(
-      "Enter Access Token",
-      undefined,
-      "Access token",
-    );
-
-    const key = await input.present();
+    const key = await showTextInput({
+      title: "Enter Access Token",
+      placeholder: "Access Token",
+    });
 
     if (key) {
       Keychain.set(KEYCHAIN_KEY, key);
@@ -35,19 +32,24 @@ module.exports.present = async () => {
   const remove = async () => {
     if (Keychain.contains(KEYCHAIN_KEY)) {
       Keychain.remove(KEYCHAIN_KEY);
-      await new Message("Access Token", "Successfully removed access token.")
-        .present();
+      await showMessage({
+        title: "Access Token",
+        message: "Successfully removed access token.",
+      });
     } else {
-      await new Message("Access Token", "Access token has not been saved.")
-        .present();
+      await showMessage({
+        title: "Access Token",
+        message: "Access token has not been saved.",
+      });
     }
   };
 
-  const wizard = new Wizard("Access Token Settings", {
-    "View Access Token": view,
-    "Update Access Token": update,
-    "Remove Access Token": [remove, "destructive"],
+  await showMenu({
+    title: "Access Token Settings",
+    pages: {
+      "View Access Token": view,
+      "Update Access Token": update,
+      "Remove Access Token": [remove, "destructive"],
+    },
   });
-
-  await wizard.present();
 };

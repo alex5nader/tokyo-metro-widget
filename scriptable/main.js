@@ -9,25 +9,27 @@ module.exports.main = async (installer) => {
     Script.setWidget(w);
     Script.complete();
   } else {
-    const { Wizard } = importModule("./wizard.js");
-
-    const mainMenu = new Wizard("Tokyo Metro Widget", {
-      ["Manage Access Token"]: () =>
+    const { showMenu } = importModule("./alerts.js");
+    const pages = {
+      "Manage Access Token": () =>
         importModule("./manage-access-token.js").present(),
-      ["Choose Stations"]: () =>
+      "Choose Stations": () =>
         importModule("./choose-stations.js").present(installer.files),
-      ["Preview Widget"]: async () => {
+      "Preview Widget": async () => {
         const w = makeWidget();
 
         await w.presentSmall();
       },
-      ["Update Code"]: async () => {
+      "Update Code": async () => {
         const { update } = importModule("./update-code.js");
 
         await update(installer);
       },
-    });
+    };
 
-    await mainMenu.present();
+    await showMenu({
+      title: "Tokyo Metro Widget",
+      pages,
+    });
   }
 };

@@ -5,13 +5,13 @@ const tryDevServer = importModule("./Tokyo Metro Widget Dev Server.js");
 
 async function main() {
   const targets = [
+    "alerts.js",
     "choose-stations.js",
     "main.js",
     "manage-access-token.js",
     "odpt.js",
     "update-code.js",
     "widget.js",
-    "wizard.js",
     "station_icon_n-14.png",
   ];
   const folder = "tokyo-metro-widget";
