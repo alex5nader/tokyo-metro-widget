@@ -39,13 +39,18 @@ const nextDeparture = async (api, station) => {
   ];
 };
 
+module.exports.Errors = {
+  invalidPreset: "invalidPreset",
+  errorFetching: "errorFetching",
+};
+
 module.exports.getSavedStationStatus = async (files, preset) => {
   if (typeof preset === "string") {
     preset = importModule("./saved-stations.js").loadStations(files, preset);
   }
 
   if (!preset) {
-    return null;
+    return module.exports.Errors.invalidPreset;
   }
 
   const api = await setupApi();
@@ -55,7 +60,7 @@ module.exports.getSavedStationStatus = async (files, preset) => {
       message:
         "Failed to get station status.\nDid you provide an access token?",
     });
-    return null;
+    return module.exports.Errors.errorFetching;
   }
 
   return Promise.all(
