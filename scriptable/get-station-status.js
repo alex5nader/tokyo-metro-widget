@@ -39,10 +39,12 @@ const nextDeparture = async (api, station) => {
   ];
 };
 
-module.exports.getSavedStationStatus = async (files) => {
-  const savedStations = importModule("./saved-stations.js").loadStations(files);
+module.exports.getSavedStationStatus = async (files, preset) => {
+  if (typeof preset === "string") {
+    preset = importModule("./saved-stations.js").loadStations(files, preset);
+  }
 
-  if (!savedStations) {
+  if (!preset) {
     return null;
   }
 
@@ -57,7 +59,7 @@ module.exports.getSavedStationStatus = async (files) => {
   }
 
   return Promise.all(
-    savedStations.map(async (station) => {
+    preset.map(async (station) => {
       const departures = await nextDeparture(api, station);
 
       return {

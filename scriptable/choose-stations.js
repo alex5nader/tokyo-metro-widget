@@ -1,4 +1,4 @@
-const { showAlert, showMessage } = importModule("./alerts.js");
+const { showAlert, showMessage, showTextInput } = importModule("./alerts.js");
 
 const cache = (f, getCacheId) => {
   const cache = {};
@@ -170,7 +170,22 @@ const chooseStations = async () => {
 module.exports.showStationMenu = async (installer) => {
   const stations = await chooseStations();
 
-  importModule("./saved-stations.js").saveStations(installer.files, stations);
+  const presetName = await showTextInput({
+    title: "Choose Name",
+    message:
+      "Choose a name to save these stations as.\nWhen setting up the widget, this is the name you enter.",
+    placeholder: "My Stations",
+  });
+
+  if (!presetName) {
+    return;
+  }
+
+  importModule("./saved-stations.js").saveStations(
+    installer.files,
+    stations,
+    presetName,
+  );
 
   await importModule("./download-icons.js").downloadIcons(installer, stations);
 };
