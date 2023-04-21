@@ -15,7 +15,6 @@ const cache = (f, getCacheId) => {
 };
 
 const getLines = cache(async (api) => {
-  console.log(api);
   const data = await api.get(api.endpoints.lines, {
     "odpt:operator": "odpt.Operator:TokyoMetro",
   });
@@ -159,8 +158,7 @@ const chooseStations = async () => {
     }
 
     chosenTimetables.push({
-      lineId,
-      stationId: station.idStr,
+      stationTitle: station.title,
       stationCode: station.code,
       timetableId,
     });

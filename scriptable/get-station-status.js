@@ -32,7 +32,11 @@ const nextDeparture = async (api, station) => {
     return date.getTime() > now;
   });
 
-  return [timetable[idx], timetable[(idx + 1) % timetable.length]];
+  return [
+    timetable[idx],
+    timetable[(idx + 1) % timetable.length],
+    timetable[(idx + 2) % timetable.length],
+  ];
 };
 
 module.exports.getSavedStationStatus = async (files) => {
@@ -61,6 +65,7 @@ module.exports.getSavedStationStatus = async (files) => {
           departure["odpt:departureTime"]
         ),
         stationCode: station.stationCode,
+        stationTitle: station.stationTitle,
       };
     }),
   );
