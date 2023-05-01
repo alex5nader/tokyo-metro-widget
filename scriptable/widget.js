@@ -81,7 +81,7 @@ const addStationTitle = (parent, title) => {
 };
 
 const addStation = (parent, station, files, options) => {
-  const stationSize = new Size(104, 87);
+  const stationSize = new Size(110, 87);
 
   const { departureTimes, stationCode, stationTitle } = station;
 
@@ -104,10 +104,14 @@ const addStation = (parent, station, files, options) => {
       bottomRow.size = new Size(stationSize.width, 60);
 
       const image = getIcon(files, stationCode);
-      bottomRow.addImage(image).imageSize = new Size(50, 50);
+      const imageEl = bottomRow.addImage(image);
+      imageEl.imageSize = new Size(50, 50);
 
       bottomRow.addColumn((rightColumn) => {
-        rightColumn.size = new Size(45, 60);
+        rightColumn.size = new Size(
+          stationSize.width - imageEl.imageSize.width - bottomRow.spacing,
+          60,
+        );
 
         for (const time of departureTimes) {
           rightColumn.addText(time);
@@ -129,9 +133,9 @@ module.exports.makeTokyoMetroWidget = (files, stations) => {
 
     wrapper.addRow((row) => {
       row.centerAlignContent();
-      row.spacing = 5;
 
       if (stations.length === 3) {
+        row.spacing = 3;
         for (const station of stations) {
           addStation(row, station, files);
         }
